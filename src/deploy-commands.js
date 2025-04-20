@@ -1,30 +1,34 @@
 const { REST, Routes } = require('discord.js');
-require('dotenv').config();
 const fs = require('fs');
+require('dotenv').config(); // Um Umgebungsvariablen wie TOKEN und CLIENT_ID zu laden
 
 const commands = [];
 const commandFiles = fs.readdirSync('./src/commands').filter(file => file.endsWith('.js'));
 
-// Lade alle Befehle
+// Alle Befehle aus den Dateien im Ordner "commands" laden
 for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  commands.push(command.data.toJSON());
+  const command = require(`./src/commands/${file}`);
+  if ('data' in command && 'execute' in command) {
+    commands.push(command.data.toJSON());
+  } else {
+    console.warn(`[WARNUNG] Die Datei "${file}" fehlt "data" oder "execute".`);
+  }
 }
 
-// REST-API-Client initialisieren
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+// REST-Client erstellen
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
-// Befehle registrieren
+// Slash-Befehle bereitstellen
 (async () => {
   try {
-    console.log('Starte die Registrierung der Slash-Befehle...');
+    console.log(`Starte das Registrieren von ${commands.length} Befehlen...`);
 
-    await rest.put(
+    const data = await rest.put(
       Routes.applicationCommands(process.env.CLIENT_ID),
       { body: commands },
     );
 
-    console.log('Slash-Befehle erfolgreich registriert!');
+    console.log(`Erfolgreich ${data.length} Befehle registriert.`);
   } catch (error) {
     console.error(error);
   }
