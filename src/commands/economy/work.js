@@ -1,24 +1,46 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
+const workData = require('../workData');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('work')
-    .setDescription('Arbeite, um Geld zu verdienen!'),
+    .setDescription('Arbeite und verdiene Geld.'),
   async execute(interaction) {
-    const jobs = [
-      { name: 'Programmierer', pay: Math.floor(Math.random() * 500) + 100 },
-      { name: 'Kassierer', pay: Math.floor(Math.random() * 250) + 50 },
-      { name: 'Lieferant', pay: Math.floor(Math.random() * 200) + 30 },
-    ];
+    const userId = interaction.user.id;
+    const user = workData.users[userId];
 
-    const job = jobs[Math.floor(Math.random() * jobs.length)];
+    if (!user || !user.job) {
+      return interaction.reply({ content: '❌ Du hast keinen Job. Wähle einen Job mit /job.', ephemeral: true });
+    }
 
-    const embed = new EmbedBuilder()
-      .setColor(0x00FF00)
-      .setTitle('💼 Arbeit abgeschlossen')
-      .setDescription(`Du hast als **${job.name}** gearbeitet und **${job.pay} Coins** verdient!`)
-      .setFooter({ text: 'Ultimate Bot - Economy', iconURL: interaction.client.user.displayAvatarURL() });
+    const jobData = workData.jobs[user.job];
+    const currentTime = Date.now();
 
-    await interaction.reply({ embeds: [embed] });
+    // Überprüfen, ob der Benutzer innerhalb der letzten 3 Stunden gearbeitet hat
+    if (user.lastWork && currentTime - user.lastWork < 3 * 60 * 60 * 1000) {
+      const timeRemaining = Math.ceil((3 * 60 * 60 * 1000 - (currentTime - user.lastWork)) / (60 * 1000));
+      return interaction.reply({ content: `❌ Du kannst erst in **${timeRemaining} Minuten** wieder arbeiten.`, ephemeral: true });
+    }
+
+    // Gehalt berechnen
+    const baseSalary = jobData.baseSalary;
+    const promotionMultiplier = Math.pow(jobData.promotionMultiplier, user.level - 1);
+    const earnings = Math.floor(baseSalary * promotionMultiplier);
+
+    // Benutzerinformationen aktualisieren
+    user.balance = (user.balance || 0) + earnings;
+    user.lastWork = currentTime;
+
+    // Beförderung prüfen (alle 5 Mal arbeiten -> Levelaufstieg)
+    user.workCount = (user.workCount || 0) + 1;
+    if (user.workCount >= 5) {
+      user.level += 1;
+      user.workCount = 0; // Zurücksetzen der Zähler
+      await interaction.reply(`🎉 Beförderung! Du bist jetzt Level **${user.level}** in deinem Job als **${jobData.name}**!`);
+    } else {
+      await interaction.reply(`✅ Du hast **${earnings} Chips** verdient! Dein aktueller Kontostand: **${user.balance} Chips**.`);
+    }
+
+    workData.users[userId] = user;
   },
 };

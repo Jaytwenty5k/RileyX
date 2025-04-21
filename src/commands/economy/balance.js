@@ -1,21 +1,45 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('balance')
-    .setDescription('Zeigt deinen aktuellen Kontostand an.'),
+    .setDescription('Zeigt deinen Kontostand an.'),
+  
   async execute(interaction) {
-    const userId = interaction.user.id;
+    // Erstelle das Auswahlmenü
+    const balanceMenu = new StringSelectMenuBuilder()
+      .setCustomId('balance_select')
+      .setPlaceholder('Wähle deine Balance aus')
+      .addOptions([
+        { label: 'Bank', value: 'bank' },
+        { label: 'Wallet', value: 'wallet' },
+        { label: 'Chips', value: 'chips' },
+      ]);
 
-    // Temporäres Beispiel: Kontostand aus einer hypothetischen Datenbank
-    const balance = 500; // Ersetze dies durch echten Datenbankaufruf
+    const row = new ActionRowBuilder().addComponents(balanceMenu);
 
-    const embed = new EmbedBuilder()
-      .setColor(0x00AE86)
-      .setTitle('💰 Dein Kontostand')
-      .setDescription(`Wallet: **${balance} Coins**\nBank: **1000 Coins**`) // Beispiel
-      .setFooter({ text: 'Ultimate Bot - Economy', iconURL: interaction.client.user.displayAvatarURL() });
+    // Sende Nachricht mit Auswahlmenü
+    await interaction.reply({
+      content: 'Wähle aus, welche Balance du sehen möchtest:',
+      components: [row],
+    });
 
-    await interaction.reply({ embeds: [embed] });
+    // Collector für die Menüinteraktion
+    const filter = (i) => i.customId === 'balance_select' && i.user.id === interaction.user.id;
+    const collector = interaction.channel.createMessageComponentCollector({ filter, time: 60000 });
+
+    collector.on('collect', async (i) => {
+      if (i.values[0] === 'bank') {
+        await i.reply('Dein Kontostand in der Bank beträgt: 1000 Dollar.');
+      } else if (i.values[0] === 'wallet') {
+        await i.reply('Dein Kontostand in dem Wallet beträgt: 500 Dollar.');
+      } else if (i.values[0] === 'chips') {
+        await i.reply('Dein Kontostand in Chips beträgt: 500 Chips.');
+      }
+    });
+
+    collector.on('end', () => {
+      console.log('Balance-Interaktion beendet.');
+    });
   },
 };

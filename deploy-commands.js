@@ -2,66 +2,56 @@ const { REST, Routes } = require('discord.js');
 const fs = require('fs');
 require('dotenv').config(); // Lädt die Umgebungsvariablen aus der .env-Datei
 
-// Funktion, um Dateien rekursiv aus einem Verzeichnis einschließlich Unterordnern zu laden
-function getCommandFiles(dir) {
-  let files = [];
-  const items = fs.readdirSync(dir, { withFileTypes: true });
+// Funktion: Befehlsdateien rekursiv laden
+function loadCommands(dir) {
+  const commands = [];
+  const files = fs.readdirSync(dir, { withFileTypes: true });
 
-  for (const item of items) {
-    if (item.isDirectory()) {
-      // Falls es ein Ordner ist, rekursiv durchsuchen
-      files = files.concat(getCommandFiles(`${dir}/${item.name}`));
-    } else if (item.isFile() && item.name.endsWith('.js')) {
-      // Falls es eine .js-Datei ist, hinzufügen
-      files.push(`${dir}/${item.name}`);
+  for (const file of files) {
+    if (file.isDirectory()) {
+      // Wenn es ein Unterordner ist, rekursiv aufrufen
+      commands.push(...loadCommands(`${dir}/${file.name}`));
+    } else if (file.isFile() && file.name.endsWith('.js')) {
+      const command = require(`${dir}/${file.name}`);
+      if ('data' in command && 'execute' in command) {
+        commands.push(command.data.toJSON());
+        console.log(`✅ Befehl "${command.data.name}" erfolgreich geladen.`);
+      } else {
+        console.warn(`⚠️ Die Datei "${file.name}" hat keine "data" oder "execute"-Eigenschaft und wurde übersprungen.`);
+      }
     }
   }
 
-  return files;
+  return commands;
 }
 
-// Array, um die Slash Commands zu sammeln
-const commands = [];
-// Verzeichnis, in dem die Befehlsdateien gespeichert sind
-const commandPath = './src/commands';
-// Alle Befehlsdateien rekursiv sammeln
-const commandFiles = getCommandFiles(commandPath);
+// Befehle aus dem Verzeichnis src/commands laden (inklusive Unterordner)
+const commands = loadCommands('./src/commands');
 
-// Befehlsdateien laden und validieren
-for (const file of commandFiles) {
-  const command = require(file);
-  if ('data' in command && 'execute' in command) {
-    commands.push(command.data.toJSON()); // SlashCommandBuilder in JSON konvertieren
-    console.log(`Befehl "${command.data.name}" aus Datei "${file}" hinzugefügt.`);
-  } else {
-    console.warn(`[WARNUNG] Die Datei "${file}" hat keine "data" oder "execute"-Eigenschaft.`);
-  }
-}
-
-// REST-Client initialisieren
+// REST-Client mit dem Bot-Token initialisieren
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
-// Befehle registrieren
+// Befehle bei Discord registrieren
 (async () => {
   try {
-    console.log(`Starte Registrierung von ${commands.length} Befehlen...`);
+    console.log('🔃 Starte die Registrierung der Slash Commands...');
 
     if (process.env.GUILD_ID) {
-      // Guild-spezifische Registrierung (für Tests auf einem Server)
-      const data = await rest.put(
+      // Guild-spezifische Registrierung (für Tests auf einem bestimmten Server)
+      await rest.put(
         Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
         { body: commands }
       );
-      console.log(`Erfolgreich ${data.length} Befehle für Guild ${process.env.GUILD_ID} registriert.`);
+      console.log(`✅ Erfolgreich ${commands.length} Befehle für Guild ID ${process.env.GUILD_ID} registriert.`);
     } else {
       // Globale Registrierung (für alle Server, auf denen der Bot hinzugefügt wurde)
-      const data = await rest.put(
+      await rest.put(
         Routes.applicationCommands(process.env.CLIENT_ID),
         { body: commands }
       );
-      console.log(`Erfolgreich ${data.length} globale Befehle registriert.`);
+      console.log(`✅ Erfolgreich ${commands.length} globale Befehle registriert.`);
     }
   } catch (error) {
-    console.error('Fehler beim Registrieren der Befehle:', error);
+    console.error(`❌ Fehler bei der Registrierung der Befehle:`, error);
   }
 })();
