@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.21",
+    "git": "^0.1.5",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17"
   }
