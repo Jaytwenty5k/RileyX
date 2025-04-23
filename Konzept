@@ -1,0 +1,134 @@
+Hier ist das vollständige Konzept, das wir bisher erstellt haben:
+
+---
+
+### **Discord-Bot Konzept**
+
+#### **1. Hauptfunktionen des Bots**
+1. **Automoderation**:
+   - Spam-, Capslock-, Link- und Blacklist-Wörter-Erkennung.
+   - Automatische Warnungen, Mutes, Bans und Logging (z. B. in `#mod-log`).
+   - Begrüßungsnachrichten und Regeln für neue Mitglieder.
+
+2. **Roblox-Verifizierung und Gruppenmanagement**:
+   - Benutzer können ihren Roblox-Account verifizieren (z. B. durch Hinzufügen eines Codes in ihr Profil).
+   - Automatische Überprüfung der Roblox-Gruppenmitgliedschaft.
+   - Belohnungen und neue Kanäle für Mitglieder der Roblox-Gruppe.
+   - Dynamisches Handling von Gruppenrängen (z. B. höhere Ränge erhalten VIP-Kanäle oder besondere Rollen).
+
+3. **Shop-System**:
+   - Benutzer können virtuelle Währungen ausgeben, um In-Server-Items zu kaufen (z. B. Rollen, Kanäle, Berechtigungen).
+   - Anpassbares Shop-System durch Admins.
+
+4. **Komplettes Economy-System**:
+   - Benutzer verdienen virtuelle Währungen durch Aktivität (z. B. Nachrichten, Events, Giveaways).
+   - Leaderboards und tägliche Belohnungen (`/daily`-Befehl).
+   - Integration in den Shop und andere Systeme.
+
+5. **Giveaway-System**:
+   - Benutzer können Giveaways starten (`/giveaway`) und automatisch Gewinner auswählen.
+   - Integration in das Economy-System (z. B. Preise in virtueller Währung).
+
+6. **Social-Media-Integration**:
+   - **YouTube**: Benachrichtigungen zu neuen Videos.
+   - **Twitch**: Live-Stream-Benachrichtigungen.
+   - **Reddit**: Abrufen und Teilen von Posts.
+   - **TikTok**: Teilen von TikToks oder Abrufen von Trends.
+   - **Instagram**: Benachrichtigungen zu neuen Posts oder Stories.
+   - **Twitter (X)**: Tweets abrufen und teilen.
+   - Anpassbare Benachrichtigungseinstellungen pro Plattform.
+
+7. **Self-Roles und Autoroles**:
+   - Benutzer können sich Rollen über Dropdown-Menüs oder Buttons selbst zuweisen.
+   - Automatische Rollenvergabe basierend auf Verifizierungen oder Gruppenmitgliedschaft.
+
+8. **Embedded Hubs**:
+   - Zentrale Informationsbereiche (z. B. Regeln, Ankündigungen, Statistiken).
+   - Automatische Erstellung von Embed-Templates für benutzerdefinierte Nachrichten.
+
+9. **Stats und Leaderboard-System**:
+   - Anzeigen von Serveraktivität, Economy-Daten und Gruppenstatistiken.
+   - Rankings basierend auf Aktivität, Economy-Punkten und speziellen Events.
+
+10. **Rank-System**:
+    - Benutzer steigen durch Aktivität im Rang auf.
+    - Anpassbare Belohnungen (z. B. Rollen, Economy-Guthaben).
+    - Visualisierung von Rangfortschritt (z. B. Level-Bars).
+
+11. **Support-Tickets**:
+    - Benutzer können Support-Tickets erstellen.
+    - Automatische Erstellung privater Kanäle für Supportanfragen.
+    - Ticket-Logs und Verwaltung für Admins.
+
+12. **Emoji-Creator**:
+    - Benutzer können Emojis über eine Website hochladen und bearbeiten.
+    - Vorschau und Bearbeitung von Emojis vor dem Hochladen (statische Bilder und GIFs).
+
+13. **Auto Responder**:
+    - Automatische Antworten auf häufige Fragen oder Schlüsselwörter.
+    - Unterstützung für dynamische Inhalte (z. B. Erwähnung des Benutzers).
+
+---
+
+#### **2. Website mit Web-Dashboard**
+- **Ziele**:
+  - Benutzer können Einstellungen für den Bot bequem über ein Dashboard verwalten.
+  - Dynamische Interaktionen (z. B. Kanäle kaufen, Economy-Statistiken einsehen, Emojis erstellen).
+
+- **Features**:
+  1. **Benutzer-Authentifizierung**:
+     - Discord-OAuth2-Login.
+     - Benutzer sehen nur Server, auf denen sie Administratorrechte besitzen.
+  
+  2. **Dashboard-Verwaltung**:
+     - **Server-Einstellungen**: Kanäle erstellen oder konfigurieren, Automod-Regeln anpassen.
+     - **Economy und Shop**: Shop-Inhalte bearbeiten, Einkäufe verwalten.
+     - **Giveaways**: Giveaways erstellen und verwalten.
+     - **Statistiken**: Serverstatistiken und Benutzeraktivitäten einsehen.
+  
+  3. **Kanal-Verwaltung**:
+     - Benutzer können Kanäle kaufen oder verwalten.
+     - Ablaufzeiten und Verlängerungen für gekaufte Kanäle.
+
+  4. **Emoji-Erstellung**:
+     - Bereich zum Hochladen und Bearbeiten von Emojis.
+     - Vorschau vor dem Hochladen.
+
+---
+
+#### **3. Motivation der Roblox-Community**
+- **Gruppenbeitritt fördern**:
+  - Der Bot erinnert Benutzer regelmäßig daran, der Roblox-Gruppe beizutreten.
+  - Benutzer erhalten Belohnungen (z. B. Economy-Punkte, exklusive Kanäle), wenn sie der Gruppe beitreten.
+  
+- **Belohnungen für Gruppenmitglieder**:
+  - Automatische Zuweisung von Rollen und Kanälen für Gruppenmitglieder.
+  - Zugriff auf exklusive Inhalte und Events.
+
+---
+
+#### **4. Technologiestack**
+- **Discord-Bot**:
+  - **Node.js** mit **Discord.js** oder **Python** mit **discord.py**.
+  - Anbindung an die Roblox-API (für Verifizierung und Gruppenmitgliedschaft).
+- **Website**:
+  - **Frontend**: React oder Vue.js für ein modernes, responsives Design.
+  - **Backend**: Node.js mit Express.js oder Fastify.
+  - **Datenbanken**:
+    - **MongoDB**: Speicherung von Benutzerdaten, Economy und Verifizierungen.
+    - **Redis**: Caching für API-Aufrufe.
+- **Social-Media-Integrationen**:
+  - APIs wie **YouTube Data API**, **Twitch API**, **Reddit API**, **TikTok API**, **Instagram Graph API** und **Twitter API**.
+- **Hosting**:
+  - **Website**: Vercel, Netlify oder eigener Server.
+  - **Bot**: VPS (z. B. AWS, Heroku, Render).
+  - **Datenbank**: MongoDB Atlas oder eigener Datenbank-Server.
+
+---
+
+### **Zusammenfassung**
+Der Bot kombiniert Automatisierung, Community-Management, Economy- und Social-Media-Interaktion in einer nahtlosen Lösung. Mit der Integration eines Web-Dashboards und Roblox-spezifischen Funktionen wird er eine zentrale Plattform für die Verwaltung und Interaktion innerhalb deiner Roblox-Community und darüber hinaus.
+
+---
+
+Falls du Änderungen oder Ergänzungen vornehmen möchtest, lass es mich wissen! 😊
